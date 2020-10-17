@@ -13,5 +13,9 @@ defmodule EventStore.Repo.Migrations.CreateEvents do
 
       timestamps(type: :utc_datetime, updated_at: false)
     end
+
+    create unique_index(:events, [:global_position])
+    create index(:events, [:stream_name])
+    create index(:events, [:type])
   end
 end

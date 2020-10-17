@@ -97,8 +97,26 @@ defmodule EventStore.Core do
       {:offset, offset}, query ->
         from(p in query, offset: ^offset)
 
+      {:filter, filters}, query ->
+        filter_with(filters, query)
+
       {:order, order}, query ->
         from(p in query, order_by: [{^order, ^:global_position}])
+
+      _arg, query ->
+        query
+    end)
+  end
+
+  defp filter_with(filters, query) do
+    Enum.reduce(filters, query, fn
+      {:stream_name, stream_name}, query ->
+        pattern = "%#{stream_name}%"
+        from q in query, where: ilike(q.stream_name, ^pattern)
+
+      {:type, type}, query ->
+        pattern = "%#{type}%"
+        from q in query, where: ilike(q.type, ^pattern)
 
       _arg, query ->
         query
