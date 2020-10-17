@@ -7,7 +7,11 @@ defmodule EventStore.Application do
 
   def start(_type, _args) do
     children = [
-      {EventStore.Repo, []}
+      # Start the Ecto repository
+      {EventStore.Repo, []},
+
+      # Start the Telemetry supervisor
+      EventStore.Telemetry,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
