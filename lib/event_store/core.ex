@@ -3,14 +3,15 @@ defmodule EventStore.Core do
   import Ecto.Changeset
 
   alias EventStore.Repo
-  alias __MODULE__.Event
+  alias __MODULE__.{Event, Dispatcher}
 
   @doc """
   create a domain event.
   """
   def create_event(dto) do
     with {:ok, changeset} <- validate_event(dto),
-         {:ok, event} <- persist(changeset, :insert) do
+         {:ok, event} <- persist(changeset, :insert),
+         :ok <- Dispatcher.dispatch(event) do
       {:ok, event}
     else
       {:error, changeset} -> {:error, changeset}

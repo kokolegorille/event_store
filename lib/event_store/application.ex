@@ -12,6 +12,9 @@ defmodule EventStore.Application do
 
       # Start the Telemetry supervisor
       EventStore.Telemetry,
+
+      # Start the listeners provider
+      EventStore.Core.ListenersProvider,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
