@@ -1,9 +1,12 @@
 defmodule EventStore.Core.Event do
   use Ecto.Schema
 
-  @timestamps_opts type: :utc_datetime
+  # No need for update_at, as it is append only.
+  @timestamps_opts type: :utc_datetime, updated_at: false
   @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
+
+  # No need for foreign key type...
+  #@foreign_key_type :binary_id
   schema "events" do
     field(:stream_name, :string)
     field(:type, :string)

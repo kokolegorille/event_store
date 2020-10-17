@@ -86,6 +86,7 @@ defmodule EventStore.Core do
 
   # END Acts as list
 
+  # No need for preload
   defp list_events_query(criteria) do
     query = from(p in Event)
 

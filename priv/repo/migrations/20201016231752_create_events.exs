@@ -11,7 +11,7 @@ defmodule EventStore.Repo.Migrations.CreateEvents do
       add :metadata, :map
       add :expected_version, :bigint
 
-      timestamps(type: :utc_datetime)
+      timestamps(type: :utc_datetime, updated_at: false)
     end
   end
 end
