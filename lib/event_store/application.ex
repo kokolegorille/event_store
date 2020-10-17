@@ -7,8 +7,7 @@ defmodule EventStore.Application do
 
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: EventStore.Worker.start_link(arg)
-      # {EventStore.Worker, arg}
+      {EventStore.Repo, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
