@@ -19,6 +19,10 @@ defmodule EventStore.Core do
 
   @doc """
   list events.
+
+  # Example:
+
+  Core.list_events order: :asc, filter: [type: "test"]
   """
   def list_events(criteria \\ []) do
     criteria
@@ -50,13 +54,14 @@ defmodule EventStore.Core do
     Repo.insert(valid_changeset)
   end
 
+  # Private changeset
+
   @required_fields ~w(stream_name type data metadata)a
 
   defp event_changeset(%Event{} = event, attrs) do
     event
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
-    # Acts as list
     |> generate_position()
   end
 
