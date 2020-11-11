@@ -21,9 +21,27 @@ defmodule EventStore.Core do
   @doc """
   list events.
 
+  filters:
+    * stream_name
+    * type
+    * gt_than_global
+    * gt_than_position
+    * metadata
+    * data
+    * before
+    * after
+
   # Example:
 
   Core.list_events order: :asc, filter: [type: "test"]
+
+  Core.list_events filter: [
+    metadata: [
+      {"user_id", "5b834fd4-b7f3-41af-9197-99bfb589950c"},
+      {"trace_id", "6db9b5e2-d70f-40e9-8f47-8994f89a6890"}
+    ],
+    before: Date.utc_today()
+  ]
   """
   def list_events(criteria \\ []) do
     criteria
@@ -36,6 +54,23 @@ defmodule EventStore.Core do
   """
   def get_event(id) do
     Repo.get(Event, id)
+  end
+
+  @doc """
+  Returns max of global position.
+  """
+  def max_global_position() do
+    max_global_position_query()
+    |> Repo.one() || 0
+  end
+
+  @doc """
+  Returns max of position, per stream_name.
+  """
+  def max_position(scope_value) do
+    scope_value
+    |> max_position_query()
+    |> Repo.one() || 0
   end
 
   # Private
@@ -79,18 +114,16 @@ defmodule EventStore.Core do
 
   defp generate_position(changeset), do: changeset
 
-  defp max_position(scope_value) do
-    scope_value
-    |> max_position_query()
-    |> Repo.one() || 0
-  end
-
   defp max_position_query(scope_value) do
     scope = :stream_name
     from(r in Event, where: field(r, ^scope) == ^scope_value, select: max(r.position))
   end
 
   # END Acts as list
+
+  defp max_global_position_query() do
+    from(r in Event, select: max(r.global_position))
+  end
 
   # No need for preload
   defp list_events_query(criteria) do
@@ -118,11 +151,41 @@ defmodule EventStore.Core do
     Enum.reduce(filters, query, fn
       {:stream_name, stream_name}, query ->
         pattern = "%#{stream_name}%"
-        from q in query, where: ilike(q.stream_name, ^pattern)
+        from(q in query, where: ilike(q.stream_name, ^pattern))
+
+      {:gt_than_global, gp}, query ->
+        from(q in query, where: q.global_position > ^gp)
+
+      {:gt_than_position, position}, query ->
+        from(q in query, where: q.position > ^position)
 
       {:type, type}, query ->
-        pattern = "%#{type}%"
-        from q in query, where: ilike(q.type, ^pattern)
+        from(q in query, where: q.type == ^type)
+
+      # Date query
+      {:before, date}, query ->
+        from(q in query, where: fragment("?::date", q.inserted_at) <= ^date)
+
+      {:after, date}, query ->
+        from(q in query, where: fragment("?::date", q.inserted_at) > ^date)
+
+      # JsonB filtering
+      #
+      # This allow filtering like
+      # EventStore.list_events filter: [
+      #  metadata: [{"user_id", "5b834fd4-b7f3-41af-9197-99bfb589950c"}, {"trace_id", "6db9b5e2-d70f-40e9-8f47-8994f89a6890"}]
+      # ]
+      {:metadata, metadata_keyword}, query ->
+        Enum.reduce(metadata_keyword, query, fn
+          {key, value}, subquery ->
+            from(q in subquery, where: fragment("metadata -> ? = ?", ^key, ^value))
+        end)
+
+      {:data, data_keyword}, query ->
+        Enum.reduce(data_keyword, query, fn
+          {key, value}, subquery ->
+            from(q in subquery, where: fragment("data -> ? = ?", ^key, ^value))
+        end)
 
       _arg, query ->
         query

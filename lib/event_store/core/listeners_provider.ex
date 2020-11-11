@@ -30,7 +30,7 @@ defmodule EventStore.Core.ListenersProvider do
   def init(_) do
     Logger.debug(fn -> "#{@name} is starting}" end)
     #
-    Process.flag :trap_exit, true
+    Process.flag(:trap_exit, true)
     :ets.new(@name, [:set, :protected, :named_table])
     {:ok, nil}
   end
@@ -48,6 +48,7 @@ defmodule EventStore.Core.ListenersProvider do
       [[ref]] when is_reference(ref) -> Process.demonitor(ref)
       _ -> nil
     end
+
     :ets.delete(@name, pid)
 
     {:noreply, nil}
@@ -63,10 +64,10 @@ defmodule EventStore.Core.ListenersProvider do
   end
 
   @impl GenServer
-	def terminate(reason, _state) do
-    Logger.debug(fn -> "#{@name} is stopping : #{inspect reason}" end)
+  def terminate(reason, _state) do
+    Logger.debug(fn -> "#{@name} is stopping : #{inspect(reason)}" end)
     #
     :ets.delete(@name)
-		:ok
-	end
+    :ok
+  end
 end
