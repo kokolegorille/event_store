@@ -1,4 +1,10 @@
 defmodule EventStore.Core.ListenersProvider do
+  @moduledoc """
+  The listener provider.
+  A simple gen server managing an ets table. It stores pid, filter_fun, and ref.
+  It monitors clients and update ets table.
+  """
+
   use GenServer
   require Logger
 

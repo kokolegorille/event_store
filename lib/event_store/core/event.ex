@@ -1,4 +1,8 @@
 defmodule EventStore.Core.Event do
+  @moduledoc """
+  The event schema.
+  """
+
   use Ecto.Schema
 
   # No need for update_at, as it is append only mode.

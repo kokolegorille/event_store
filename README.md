@@ -1,6 +1,11 @@
 # EventStore
 
-**TODO: Add description**
+A simple Event Store written in Elixir.
+
+It has an event dispatcher, where it is possible to un/register. 
+You can add a filtering function, to select which events to listen to.
+
+It uses Ecto 3.5, with postgresql.
 
 ## Installation
 

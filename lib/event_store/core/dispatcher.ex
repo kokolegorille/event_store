@@ -1,4 +1,10 @@
 defmodule EventStore.Core.Dispatcher do
+  @moduledoc """
+  The dispacther.
+  It gets listeners from provider and send them the event,
+  if the filtering function is true.
+  """
+
   require Logger
 
   alias EventStore.Core.ListenersProvider
