@@ -28,8 +28,8 @@ defmodule EventStore.MixProject do
       {:ecto_sql, "~> 3.5"},
       {:postgrex, "~> 0.15.6"},
       {:jason, "~> 1.0"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
+      {:telemetry_metrics, "~> 0.4 or ~> 0.6"},
+      {:telemetry_poller, "~> 0.4 or ~> 1.0"},
     ]
   end
 
